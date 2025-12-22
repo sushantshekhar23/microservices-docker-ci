@@ -1,33 +1,34 @@
 version: "3.8"
+
 services:
   service-registry:
-    build: ./service-registry
+    image: sushantshekhar23/service-registry:latest
     ports:
       - "8761:8761"
 
   config-server:
-    build: ./config-server
+    image: sushantshekhar23/config-server:latest
     ports:
       - "8888:8888"
     depends_on:
       - service-registry
 
   api-gateway:
-    build: ./api-gateway
+    image: sushantshekhar23/api-gateway:latest
     ports:
       - "8080:8080"
     depends_on:
       - config-server
 
   department-service:
-    build: ./department-service
+    image: sushantshekhar23/department-service:latest
     ports:
       - "8081:8081"
     depends_on:
       - config-server
 
   employee-service:
-    build: ./employee-service
+    image: sushantshekhar23/employee-service:latest
     ports:
       - "8082:8082"
     depends_on:
