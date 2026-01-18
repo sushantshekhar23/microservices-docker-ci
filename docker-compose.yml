@@ -1,35 +1,77 @@
 version: "3.8"
 
+networks:
+  spring-cloud-net:
+    driver: bridge
+
 services:
+
   service-registry:
     image: sushantshekhar23/service-registry:latest
+    container_name: service-registry
     ports:
       - "8761:8761"
+    networks:
+      - spring-cloud-net
+    restart: unless-stopped
 
   config-server:
     image: sushantshekhar23/config-server:latest
+    container_name: config-server
     ports:
-      - "8888:8888"
+      - "8088:8088"
     depends_on:
       - service-registry
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+    networks:
+      - spring-cloud-net
+    restart: unless-stopped
 
   api-gateway:
     image: sushantshekhar23/api-gateway:latest
+    container_name: api-gateway
     ports:
-      - "8080:8080"
+      - "8080:8060"
     depends_on:
+      - service-registry
       - config-server
+    environment:
+      SPRING_APPLICATION_NAME: api-gateway
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8088
+    networks:
+      - spring-cloud-net
+    restart: unless-stopped
 
   department-service:
     image: sushantshekhar23/department-service:latest
+    container_name: department-service
     ports:
       - "8081:8081"
     depends_on:
+      - service-registry
       - config-server
+    environment:
+      SPRING_APPLICATION_NAME: department-service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8088
+    networks:
+      - spring-cloud-net
+    restart: unless-stopped
 
   employee-service:
     image: sushantshekhar23/employee-service:latest
+    container_name: employee-service
     ports:
       - "8082:8082"
     depends_on:
+      - service-registry
       - config-server
+    environment:
+      SPRING_APPLICATION_NAME: employee-service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://service-registry:8761/eureka/
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8088
+    networks:
+      - spring-cloud-net
+    restart: unless-stopped
