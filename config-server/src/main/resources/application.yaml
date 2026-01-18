@@ -1,9 +1,32 @@
 spring:
   application:
     name: config-server
+
   profiles:
-    active: native
+    active: native   # OK for local/native config repo
+
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config
+          # OR file:/config-repo if mounted via Docker volume
 
 server:
   port: 8088
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
